@@ -10,7 +10,7 @@
 - [탐구 주제 선정 홈페이지](2026/physics-cooling/topics.html)
 - [ThermoLab 1.2](2026/physics-cooling/thermolab.html)
 
-**참고:** 아직 두 프로그램 원본 HTML 파일은 업로드되지 않았습니다. 아래 경로로 올린 뒤 페이지 링크가 작동합니다.
+**게시 완료:** 두 프로그램의 HTML 원본을 저장소에 추가했습니다.
 
 ```text
 index.html
