@@ -22,6 +22,11 @@ index.html
 .nojekyll
 ```
 
+### 2026 — VOID9 × Keyboard Studio
+
+- [프로젝트 소개: 실물 제작·배선 시각화·통합 설정 프로그램](2026/void9/)
+- 하드웨어 및 앱 소스 저장소는 현재 비공개로 유지하며, **소개 웹페이지만 공개**합니다.
+
 ## 배포
 
 GitHub 저장소 → Settings → Pages → Build and deployment → Deploy from a branch → main / (root) 설정.
