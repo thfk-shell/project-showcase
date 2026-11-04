@@ -748,12 +748,12 @@ dialog.lightbox .close{position:absolute;top:8px;right:8px;width:40px;height:40p
       <div class="versions rv">
         <div class="version primary">
           <div class="row"><h3>3D 배선 가이드 V2</h3><span class="chip info">NEW</span></div>
-          <p>이 저장소에서 새로 제작한 버전입니다. 핀 표기를 VOID9 원본 QMK 설정(행 F4·F5·F6, 열 D3·D4·D2, COL2ROW)에 맞췄습니다.</p>
+          <p>이전 Gemini 기반 제작 가이드의 장점을 참고하고, 실물 제작 뒤 확인된 설정을 반영하여 Claude Code로 새로 구현한 V2입니다. 핀 표기는 VOID9 원본 QMK 설정(행 F4·F5·F6, 열 D3·D4·D2, COL2ROW)에 맞췄습니다.</p>
           <div class="actions"><a class="btn btn-primary" href="./3d-guide/">V2 열기 <span class="arw" aria-hidden="true">↗</span></a></div>
         </div>
         <div class="version">
           <div class="row"><h3>V1 · 이전 별도 배포본</h3><span class="chip warn">기록용</span></div>
-          <p>실제 VOID9 제작 과정에서 참고한 최초 버전입니다(2026.09). 일부 화면의 열 핀 표기가 최종 QMK 설정과 다르므로, 제작 기준으로는 V2를 사용하세요. V2는 V1의 원본 코드를 복구한 것이 아니라 새로 만든 프로그램입니다.</p>
+          <p>2026년 9월 학교 수업에서 Gemini를 활용한 3D 시뮬레이션 제작을 배운 뒤, 3D 구현에 강점이 있다고 판단해 Gemini로 만든 첫 완성본입니다. 당시 결과물에 만족했고 실제 제작을 이해하는 데 참고했습니다. 이후 실물 제작·수리에서 확인된 사실을 반영해 Claude Code로 V2를 새로 제작했습니다. V1 일부 화면의 열 핀 표기는 최종 QMK 설정과 다르므로 실제 배선 기준으로 쓰기 전 반드시 대조해야 합니다.</p>
           <div class="actions"><a class="btn btn-line" href="https://void9-wiring-simulator.thfk1234kr.chatgpt.site/" target="_blank" rel="noopener noreferrer">V1 배포 기록 열기 <span class="arw" aria-hidden="true">↗</span></a></div>
         </div>
       </div>
@@ -884,7 +884,9 @@ dialog.lightbox .close{position:absolute;top:8px;right:8px;width:40px;height:40p
         <h3>개발 방식</h3>
         <ul>
           <li><b>제작자</b> — 하드웨어 조립·배선·납땜, 회로 오류 진단·수리, 문제 정의, 요구사항과 지원 범위 결정, 결과물 검토, 실기기 검증</li>
-          <li><b>AI 코딩 도구</b> — 3D 가이드와 Keyboard Studio의 코드 구현, 자동 테스트 작성, 소프트웨어 버그 수정 지원</li>
+          <li><b>Gemini</b> — 학교 수업에서 익힌 3D 시뮬레이션 제작 방법을 적용해 첫 배선 가이드(V1) 구현</li>
+          <li><b>Claude Code</b> — Keyboard Studio의 코드 구현·테스트 지원 및 3D 가이드 V2의 신규 구현, 공개 홍보 페이지 제작</li>
+          <li><b>ChatGPT</b> — 요구사항 정리, 기술 검토와 자료·보고서 구성 지원</li>
         </ul>
       </div>
     </div>
