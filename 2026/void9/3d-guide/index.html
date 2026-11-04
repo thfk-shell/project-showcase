@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1118">
+<title>VOID9 3D 배선 시뮬레이터 V2</title>
+<meta name="description" content="직접 제작한 3×3 매크로패드 VOID9의 스위치·다이오드·행/열 배선·Pro Micro 연결을 3D로 살펴보는 학습용 시뮬레이터 V2.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+</head>
+<body>
+<a class="skip" href="#panel">조작 패널로 건너뛰기</a>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">V9</span>
+    <div>
+      <h1>VOID9 3D 배선 시뮬레이터 <span class="ver">V2</span></h1>
+      <p class="sub">3×3 핸드와이어드 매크로패드 · Pro Micro · QMK COL2ROW</p>
+    </div>
+  </div>
+  <div class="top-meta">
+    <span class="badge" title="실제 회로를 측정하지 않는 학습용 시각화입니다">학습용 시뮬레이션</span>
+    <a class="back" href="../">VOID9 소개 페이지</a>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="stage" aria-label="3D 모델 영역">
+    <div class="toolbar" role="toolbar" aria-label="시점과 표시 설정">
+      <div class="tgroup" aria-label="시점">
+        <span class="tlabel">시점</span>
+        <button type="button" data-view="iso" class="chip">초기화</button>
+        <button type="button" data-view="top" class="chip">윗면</button>
+        <button type="button" data-view="bottom" class="chip">하판 정면</button>
+        <button type="button" data-view="bottomAngle" class="chip">하판 사선</button>
+        <button type="button" data-view="mcu" class="chip">Pro Micro 확대</button>
+      </div>
+      <div class="tgroup" aria-label="표시">
+        <span class="tlabel">표시</span>
+        <button type="button" class="chip toggle" data-toggle="keycaps" aria-pressed="true">키캡</button>
+        <button type="button" class="chip toggle" data-toggle="topCase" aria-pressed="true">상판</button>
+        <button type="button" class="chip toggle" data-toggle="bottomCase" aria-pressed="true">하판</button>
+        <button type="button" class="chip toggle" data-toggle="labels" aria-pressed="true">라벨</button>
+      </div>
+      <div class="tgroup" aria-label="배선 강조">
+        <span class="tlabel">강조</span>
+        <button type="button" class="chip line r0" data-focus="row:0" aria-pressed="false">R0</button>
+        <button type="button" class="chip line r1" data-focus="row:1" aria-pressed="false">R1</button>
+        <button type="button" class="chip line r2" data-focus="row:2" aria-pressed="false">R2</button>
+        <button type="button" class="chip line c0" data-focus="col:0" aria-pressed="false">C0</button>
+        <button type="button" class="chip line c1" data-focus="col:1" aria-pressed="false">C1</button>
+        <button type="button" class="chip line c2" data-focus="col:2" aria-pressed="false">C2</button>
+      </div>
+    </div>
+
+    <div class="viewport" id="viewport" tabindex="0" role="application"
+         aria-label="VOID9 3D 모델. 드래그로 회전, 휠 또는 두 손가락으로 확대·축소. 키보드: 방향키로 회전, 더하기·빼기로 확대·축소, R로 초기화.">
+      <div class="view-hint" id="viewHint" aria-live="polite"></div>
+      <div class="webgl-fail" id="webglFail" hidden>
+        <strong>3D 화면을 표시할 수 없습니다.</strong>
+        <p>이 브라우저 또는 기기에서 WebGL을 사용할 수 없습니다. 오른쪽(모바일은 아래) 패널의 단계 설명·오류 설명·핀 표는 계속 이용할 수 있습니다.</p>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <ul class="legend" aria-label="색상 범례">
+        <li><i class="sw r0"></i>R0 · F4</li>
+        <li><i class="sw r1"></i>R1 · F5</li>
+        <li><i class="sw r2"></i>R2 · F6</li>
+        <li><i class="sw c0"></i>C0 · D3</li>
+        <li><i class="sw c1"></i>C1 · D4</li>
+        <li><i class="sw c2"></i>C2 · D2</li>
+        <li><i class="sw joint"></i>납땜 지점</li>
+      </ul>
+      <p class="selected" id="selectedLine" aria-live="polite">부품을 클릭(탭)하면 설명이 표시됩니다.</p>
+    </div>
+  </section>
+
+  <aside class="panel" id="panel" aria-label="조작 패널">
+    <div class="tabs" role="tablist" aria-label="패널 메뉴">
+      <button type="button" role="tab" id="tab-steps" aria-controls="pane-steps" aria-selected="true">단계 가이드</button>
+      <button type="button" role="tab" id="tab-faults" aria-controls="pane-faults" aria-selected="false" tabindex="-1">오류 시뮬레이션</button>
+      <button type="button" role="tab" id="tab-part" aria-controls="pane-part" aria-selected="false" tabindex="-1">부품 정보</button>
+      <button type="button" role="tab" id="tab-pins" aria-controls="pane-pins" aria-selected="false" tabindex="-1">핀 설정</button>
+    </div>
+
+    <!-- 단계 가이드 -->
+    <section class="pane" id="pane-steps" role="tabpanel" aria-labelledby="tab-steps">
+      <ol class="steps" id="stepList"></ol>
+      <article class="step-card" id="stepCard" aria-live="polite"></article>
+      <div class="step-nav">
+        <button type="button" class="btn" id="prevStep">이전 단계</button>
+        <span class="step-count" id="stepCount"></span>
+        <button type="button" class="btn primary" id="nextStep">다음 단계</button>
+      </div>
+    </section>
+
+    <!-- 오류 시뮬레이션 -->
+    <section class="pane" id="pane-faults" role="tabpanel" aria-labelledby="tab-faults" hidden>
+      <p class="notice">아래 오류는 <strong>미리 정의한 규칙에 따라 재현하는 가상 시나리오</strong>입니다. 이 프로그램은 USB 장치나 실제 배선을 측정·진단하지 않습니다.</p>
+      <fieldset class="faults">
+        <legend>오류 선택</legend>
+        <div id="faultList"></div>
+      </fieldset>
+      <article class="fault-card" id="faultCard" aria-live="polite"></article>
+      <div class="tester">
+        <h3>가상 입력 테스트</h3>
+        <p class="hint">키를 누르면 현재 상태(정상 또는 선택한 오류)에서 QMK가 그 키를 인식하는지 규칙에 따라 보여 줍니다. 3D 모델의 스위치를 클릭해도 됩니다.</p>
+        <div class="vkeys" id="vkeys" role="group" aria-label="가상 3×3 키"></div>
+        <pre class="scanlog" id="scanLog" aria-live="polite">키를 눌러 보세요.</pre>
+      </div>
+    </section>
+
+    <!-- 부품 정보 -->
+    <section class="pane" id="pane-part" role="tabpanel" aria-labelledby="tab-part" hidden>
+      <article class="part-card" id="partCard">
+        <h2>부품 정보</h2>
+        <p>3D 모델에서 스위치, 다이오드, 배선, 납땜 지점, Pro Micro 핀을 클릭(탭)하면 이곳에 역할과 연결 정보가 표시됩니다.</p>
+      </article>
+      <div class="partlist">
+        <h3>바로 보기</h3>
+        <div class="partbtns" id="partButtons"></div>
+      </div>
+    </section>
+
+    <!-- 핀 설정 -->
+    <section class="pane" id="pane-pins" role="tabpanel" aria-labelledby="tab-pins" hidden>
+      <h2 class="pane-title">QMK 설정과 보드 표기</h2>
+      <p>VOID9 펌웨어 백업의 <code>keyboard.json</code>에 기록된 값을 그대로 사용했습니다. 시뮬레이터의 모든 배선 끝점은 아래 표에서 계산됩니다.</p>
+      <div class="tablewrap">
+        <table class="pins">
+          <caption class="sr">행·열 신호와 Pro Micro 핀 대응표</caption>
+          <thead><tr><th scope="col">신호</th><th scope="col">QMK 핀</th><th scope="col">보드 인쇄</th><th scope="col">연결 대상</th></tr></thead>
+          <tbody id="pinTable"></tbody>
+        </table>
+      </div>
+      <pre class="code" id="jsonSnippet"></pre>
+      <div class="callout warn">
+        <h3>이전 버전과의 핀 표기 차이</h3>
+        <p>일부 이전 3D 가이드는 열 핀을 <code>D1, D4, D0</code>으로 표시했습니다. VOID9 QMK 백업은 <code>D3, D4, D2</code>입니다. V2는 백업 값을 기준으로 삼았으며, 이전 표기는 <em>오류 시뮬레이션 → 잘못된 MCU 핀 연결</em>에서 비교할 수 있습니다.</p>
+        <p>Pro Micro 보드에 인쇄된 이름(TX0, RX1, 2, 3, A3…)과 QMK 핀 이름(D3, D2, D1, D0, F4…)은 다릅니다. 예를 들어 인쇄 <code>2</code>는 QMK <code>D1</code>, 인쇄 <code>TX0</code>은 QMK <code>D3</code>입니다. 보드 제조사에 따라 TX0/TXO, RX1/RXI로 표기되기도 합니다.</p>
+      </div>
+      <div class="callout">
+        <h3>COL2ROW와 다이오드 방향</h3>
+        <p>COL2ROW에서는 전류가 <strong>열(Col) → 스위치 → 다이오드 → 행(Row)</strong> 방향으로 흐릅니다. 그래서 다이오드의 검은 띠(캐소드)는 행 배선 쪽을 향해야 합니다. QMK는 행을 하나씩 LOW로 구동하고 풀업된 열 입력을 읽어 눌린 키를 찾습니다.</p>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<footer class="foot">
+  <p><strong>정확성 범위.</strong> 행·열·다이오드 방향과 MCU 핀 대응은 VOID9 QMK 백업(<code>keyboard.json</code>) 기준입니다. 전선의 경로, 케이스 형상, Pro Micro 위치와 GND 연결선은 이해를 돕기 위한 <strong>시각화 모델</strong>이며 실물을 측정한 값이 아닙니다. 실제 배선은 실물 사진과 함께 확인하세요.</p>
+  <p>V2는 새로 작성한 프로그램입니다. 이전 배포본(2026-09)의 원본 소스는 이 저장소에 복구되지 않았습니다. 3D 렌더링: three.js r160 (MIT, <code>vendor/</code> 포함).</p>
+</footer>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
